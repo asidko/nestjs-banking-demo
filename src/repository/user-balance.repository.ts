@@ -24,10 +24,7 @@ export class UserBalanceRepository {
   async getBalanceAndVersion(userId: number, currency: string = 'USD'): Promise<UserBalanceInfo> {
     const result = await this.repository
       .createQueryBuilder('ub')
-      .select(
-        "SUM(CASE WHEN ub.event_type = 'CREDIT' THEN ub.amount ELSE -ub.amount END)",
-        'balance'
-      )
+      .select( "SUM(CASE WHEN ub.event_type = 'CREDIT' THEN ub.amount ELSE -ub.amount END)", 'balance' )
       .addSelect("COALESCE(MAX(ub.version), 0)", 'lastVersion')
       .where('ub.user_id = :userId', { userId })
       .andWhere('ub.currency = :currency', { currency })

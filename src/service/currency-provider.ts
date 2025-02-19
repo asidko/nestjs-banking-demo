@@ -5,7 +5,8 @@ export const CURRENCY_PROVIDERS = "CURRENCY_PROVIDERS";
 export interface CurrencyProvider {
     getName(): string,
     validateInputAmount(amount: string): boolean
-    convertAmountToInteger(amount: string): number
+    convertAmountToInteger(amount: string): number // to database representation
+    convertAmountToNormal(amount: number): string  // to common representation
 }
 
 @Injectable()
@@ -20,4 +21,8 @@ export class USDCurrencyProvider implements CurrencyProvider {
         if (!this.validateInputAmount(amount)) throw new Error("Invalid amount format");
         return Math.round(parseFloat(amount) * 100); // convert to cents (integer)
     };
+
+    convertAmountToNormal(amount: number): string {
+        return (amount / 100).toFixed(2); 
+    }
 }

@@ -1,6 +1,6 @@
 import { IsAlphanumeric, IsNotEmpty, IsNumberString, IsPositive } from "class-validator";
 
-export class TransferDto {
+export class TransferRequestDto {
     @IsPositive()
     senderId: number;
 
@@ -15,3 +15,10 @@ export class TransferDto {
     currency: string;
   }
   
+  export class TransferResponseDTO {
+    senderId: number;
+    receiverId: number;
+    currency: string;
+    senderBalance: string
+    receiverBalance: string
+  }

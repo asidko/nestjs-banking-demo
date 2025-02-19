@@ -1,19 +1,15 @@
 import { BadRequestException, Inject, Injectable, PipeTransform } from "@nestjs/common";
-import { TransferDto } from "src/dto/transfer.dto";
+import { TransferRequestDto } from "src/dto/transfer.dto";
 import { CURRENCY_PROVIDERS, CurrencyProvider } from "src/service/currency-provider";
 
-export type CorrectedAmount = {
-    amountInteger: number
-}
-
 @Injectable()
-export class ValidateCurrencyPipe implements PipeTransform<TransferDto, TransferDto & CorrectedAmount> {
+export class ValidateCurrencyPipe implements PipeTransform<TransferRequestDto, TransferRequestDto> {
     constructor(
         @Inject(CURRENCY_PROVIDERS)
         private readonly currencyProviders: CurrencyProvider[],
     ) { }
 
-    transform(value: TransferDto) {
+    transform(value: TransferRequestDto) {
         const {currency, amount} = value;
         
         const provider = this.currencyProviders.find(it=> it.getName()==currency);
@@ -29,8 +25,6 @@ export class ValidateCurrencyPipe implements PipeTransform<TransferDto, Transfer
         if (!provider.validateInputAmount(amount)) 
             throw new BadRequestException("Amount format is not valid for given currency")
 
-        const amountInteger = provider.convertAmountToInteger(value.amount);
-
-        return {...value, amountInteger};
+        return value;
     }
 }

@@ -1,8 +1,7 @@
 import { Controller, Post, Body, UsePipes, Inject, Logger, BadRequestException } from '@nestjs/common';
-import { TransferDto } from 'src/dto/transfer.dto';
+import { TransferRequestDto, TransferResponseDTO } from 'src/dto/transfer.dto';
 import { TransferService } from 'src/service/transfer.service';
-import { CURRENCY_PROVIDERS, CurrencyProvider } from 'src/service/currency-provider';
-import { CorrectedAmount, ValidateCurrencyPipe } from './currency.pipe';
+import { ValidateCurrencyPipe } from './currency.pipe';
 
 @Controller('/api/internal/v1/transfers')
 export class TransferController {
@@ -10,17 +9,16 @@ export class TransferController {
 
   constructor(
     private readonly transferService: TransferService,
-    @Inject(CURRENCY_PROVIDERS) private readonly currencyProviders: CurrencyProvider[]
   ) {}
 
   @Post()
   @UsePipes(ValidateCurrencyPipe)
-  async transfer(@Body() transferDto: TransferDto & CorrectedAmount) {
-    const payloadJson = JSON.stringify(transferDto);
-    this.log.debug(`Started handling REST <CREATE_TRANSFER> request with params: ${payloadJson}`)
+  async transfer(@Body() transferDto: TransferRequestDto): Promise<TransferResponseDTO> {
+    this.log.debug(`Started handling REST <CREATE_TRANSFER> request with params: ${JSON.stringify(transferDto)}`)
 
-    await this.transferService.transferFunds(transferDto.senderId, transferDto.receiverId, transferDto.amountInteger, transferDto.currency);
+    const response = await this.transferService.transferFunds(transferDto);
+    this.log.debug(`Completed handling REST <CREATE_TRANSFER> request with params: ${JSON.stringify(response)}`)
 
-    this.log.debug(`Completed handling REST <CREATE_TRANSFER> request with params: ${payloadJson}`)
+    return response;
   }
 }
