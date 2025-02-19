@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+
+  # App
+  nestjs-banking-demo:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run start:dev"
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USERNAME: "${DB_USERNAME}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_DATABASE: "${DB_DATABASE}"
+    depends_on:
+      - database
+
+  # Postgres
+  database:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "${DB_DATABASE}"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+
+  # Postgres UI
+  # http://localhost:8082/
+  database-ui:
+    image: dpage/pgadmin4:9
+    ports:
+      - 8082:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=postgres@example.com
+      - PGADMIN_DEFAULT_PASSWORD=postgres
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+      - PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=False
+      - PGADMIN_CONFIG_WTF_CSRF_CHECK_DEFAULT=False
+    entrypoint: /bin/sh -c "chmod 600 /pgpass; /entrypoint.sh;"
+    user: root
+    configs:
+      - source: servers.json
+        target: /pgadmin4/servers.json
+      - source: pgpass
+        target: /pgpass
+
+# Configure automatic connection for Postgres UI
+configs:
+  pgpass:
+    content: |
+      database:5432:*:${DB_USERNAME}:${DB_PASSWORD}
+  servers.json:
+    content: |
+      {"Servers": {"1": {
+        "Group": "Servers",
+        "Name": "${DB_DATABASE}-server",
+        "Host": "database",
+        "Port": 5432,
+        "MaintenanceDB": "${DB_DATABASE}",
+        "Username": "${DB_USERNAME}",
+        "PassFile": "/pgpass",
+        "SSLMode": "prefer"
+      }}}
