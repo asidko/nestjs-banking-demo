@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
+import { TransferController } from './controller/transfer.controller';
+import { TransferService } from './service/transfer.service';
+import { CURRENCY_PROVIDERS, USDCurrencyProvider } from './service/currency-provider';
+import { UserBalanceRepository } from './repository/user-balance.repository';
+import { UserBalance } from './entity/user-balance.entity';
 
 dotenv.config();
 
@@ -16,10 +21,21 @@ dotenv.config();
       migrations: ['src/database/migrations/*.js'],
       migrationsRun: true,
       synchronize: false, // using migrations instead
+      entities: [UserBalance],
     }),
-    TypeOrmModule.forFeature([]),
+    TypeOrmModule.forFeature([UserBalance]),
   ],
-  controllers: [],
-  providers: [],
+  controllers: [TransferController],
+  providers: [
+    TransferService,
+     USDCurrencyProvider,
+      UserBalanceRepository,
+      {
+        provide: CURRENCY_PROVIDERS,
+        useFactory: (...instances) => instances,
+        inject: [USDCurrencyProvider]
+      }
+    
+    ],
 })
 export class AppModule { }
