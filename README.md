@@ -16,7 +16,7 @@ This is a NestJS RESTful service that addresses the issue of funds transfer.
 # Clone the repo
 git clone git@github.com:asidko/nestjs-banking-demo.git
 # Open it
-git cd nestjs-banking-demo
+cd nestjs-banking-demo
 # Set environment variables (database name, password, etc.)
 mv .env.template .env
 # Run the service and db in docker-compose
