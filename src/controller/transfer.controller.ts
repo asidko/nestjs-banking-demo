@@ -19,7 +19,7 @@ export class TransferController {
     const payloadJson = JSON.stringify(transferDto);
     this.log.debug(`Started handling REST <CREATE_TRANSFER> request with params: ${payloadJson}`)
 
-    this.transferService.transferFunds(transferDto.senderId, transferDto.receiverId, transferDto.amountInteger, transferDto.currency);
+    await this.transferService.transferFunds(transferDto.senderId, transferDto.receiverId, transferDto.amountInteger, transferDto.currency);
 
     this.log.debug(`Completed handling REST <CREATE_TRANSFER> request with params: ${payloadJson}`)
   }

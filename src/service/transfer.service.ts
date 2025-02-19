@@ -20,11 +20,13 @@ export class TransferService {
             balance: senderBalance,
             lastVersion: senderVersion
         } = await this.userBalanceRepository.getBalanceAndVersion(senderId, currency);
+        this.log.debug(`Current senderId: ${senderId} balance: ${senderBalance}, Balance after sending: ${senderBalance - amountInteger}`);
 
         if (senderBalance < amountInteger) {
+            this.log.warn(`Insufficient funds: senderId: ${senderId}, balance: ${senderBalance}, required: ${amountInteger}`);
             throw new BadRequestException('Insufficient funds');
         }
-
+    
         // Get receiver's current version.
         const { lastVersion: receiverVersion } =
             await this.userBalanceRepository.getBalanceAndVersion(receiverId, currency);
